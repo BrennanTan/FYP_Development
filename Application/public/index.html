@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  </head>
+  <body>
+    <div id="navbar"></div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-3" style="padding-top: 12px;">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Last Logged Data</h5>
+              <p><strong>Date:</strong> <span id="LLD_time"></span></p>
+              <p class="card-text"><strong>pH:</strong> <span id="LLD_ph"></span></p>
+              <p class="card-text"><strong>Moisture:</strong> <span id="LLD_moisture"></span></p>
+              <p class="card-text"><strong>Temperature:</strong> <span id="LLD_temperature"></span></p>
+              <p class="card-text"><strong>Conductivity:</strong> <span id="LLD_conductivity"></span></p>
+              <p class="card-text"><strong>Nitrogen:</strong> <span id="LLD_nitrogen"></span></p>
+              <p class="card-text"><strong>Phosphorus:</strong> <span id="LLD_phosphorus"></span></p>
+              <p class="card-text"><strong>Potassium:</strong> <span id="LLD_potassium"></span></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-9" style="padding-top: 12px;">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">lorem ipsum</h5>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="js/app.js"></script>
+    <script>
+      fetch('navbar.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('navbar').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+      fetchLastLoggedData();
+      const socket = initializeWebSocket();
+    </script>
+  </body>
+</html>
