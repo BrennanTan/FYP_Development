@@ -44,13 +44,11 @@ const formatTimestamp = (timestamp) => {
   return `${formattedHours}:${minutes}:${seconds} ${ampm}`;
 };
 
-
-// 1. GET last logged sensor data (for initial load)
 app.get('/getLastLoggedData', async (req, res) => {
     try {
       const snapshot = await db.ref('lastLoggedData').once('value');
       const data = snapshot.val();
-      console.log(data);
+      console.log("Last logged data: "+data);
       res.status(200).json(data || {});
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch data' });
@@ -126,7 +124,7 @@ app.post('/sendData', async (req, res) => {
         timestamp
       };
 
-      console.log(sensorData);
+      console.log("Send data: " + sensorData);
 
       const currentDate = new Date();
       const dateString = currentDate.toISOString().split('T')[0];
@@ -218,6 +216,23 @@ app.post('/downloadCsv', async (req, res) => {
   } catch (error) {
     console.error('Error generating CSV:', error);
     res.status(500).json({ error: 'Failed to generate CSV' });
+  }
+});
+
+app.post('/setParameters', async (req, res) => {
+  try {
+    const { parameterMinimum, parameterMaximum } = req.body;
+
+      const minimumRef = db.ref('dataParameters/minimum');
+      const maximumRef = db.ref('dataParameters/maximum');
+
+      await minimumRef.set(parameterMinimum);
+      await maximumRef.set(parameterMaximum);
+
+      res.status(200).json({ success: true });
+  } catch (error) {
+      console.error('Error setting parameters:', error);
+      res.status(500).json({ error: 'Failed to set parameters' });
   }
 });
 
