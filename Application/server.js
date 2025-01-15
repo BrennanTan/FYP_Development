@@ -109,6 +109,25 @@ app.get('/getSensorData/:date', async (req, res) => {
   }
 });
 
+app.get('/getParameters', async (req, res) => {
+  try {
+    const minimumSnapshot = await db.ref('dataParameters/minimum').once('value');
+    const minimumData = minimumSnapshot.val();
+
+    const maximumSnapshot = await db.ref('dataParameters/maximum').once('value');
+    const maximumData = maximumSnapshot.val();
+
+    res.status(200).json({
+      minimum: minimumData || {},
+      maximum: maximumData || {},
+    });
+
+  } catch (error) {
+    console.error('Error fetching parameters:', error);
+    res.status(500).json({ error: 'Failed to fetch parameters' });
+  }
+});
+
 app.post('/sendData', async (req, res) => {
   try {
       const { pH, moisture, temperature, conductivity, nitrogen, phosphorus, potassium } = req.body;

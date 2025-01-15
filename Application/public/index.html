@@ -26,14 +26,32 @@
             </div>
           </div>
         </div>
-        <div class="col-9" style="padding-top: 12px;">
+
+        <div class="col-3" style="padding-top: 12px;">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">lorem ipsum</h5>
+              <h5 class="card-title">Target Parameters</h5>
+              <p class="card-text"><strong>pH:</strong> <span id="parameterRange_ph"></span></p>
+              <p class="card-text"><strong>Moisture:</strong> <span id="parameterRange_moisture"></span></p>
+              <p class="card-text"><strong>Temperature:</strong> <span id="parameterRange_temperature"></span></p>
+              <p class="card-text"><strong>Conductivity:</strong> <span id="parameterRange_conductivity"></span></p>
+              <p class="card-text"><strong>Nitrogen:</strong> <span id="parameterRange_nitrogen"></span></p>
+              <p class="card-text"><strong>Phosphorus:</strong> <span id="parameterRange_phosphorus"></span></p>
+              <p class="card-text"><strong>Potassium:</strong> <span id="parameterRange_potassium"></span></p>
+              <a href="set_parameters.html" class="btn btn-primary">Set target parameters</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-3" style="padding-top: 12px;">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Lorem ipsum</h5>
 
             </div>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -47,6 +65,12 @@
         })
         .catch(error => console.error('Error loading navbar:', error));
       fetchLastLoggedData();
+      fetchParameters().then(data => {
+          if (data) {
+            fillTargetParameters(data.minimum, data.maximum);
+            checkAgainstParameter_LLD(data.minimum, data.maximum);
+          }
+        });
       const socket = initializeWebSocket();
     </script>
   </body>

@@ -187,3 +187,67 @@ function updateTable(result, selectedDate) {
         paginationContainer.appendChild(paginationUl);
     }
 }
+
+async function fetchParameters() {
+  try{
+    const response = await fetch('http://localhost:3000/getParameters');
+    const data = await response.json();
+    return data;
+
+  }catch(error){
+    console.error('Error fetch parameters: ', error)
+  }
+}
+
+function fillTargetParameters(minimum, maximum){
+  document.getElementById('parameterRange_ph').textContent = `${minimum.ph} - ${maximum.ph}`;
+  document.getElementById('parameterRange_moisture').textContent = `${minimum.moisture}% - ${maximum.moisture}%`;
+  document.getElementById('parameterRange_temperature').textContent = `${minimum.temperature}°C - ${maximum.temperature}°C`;
+  document.getElementById('parameterRange_conductivity').textContent = `${minimum.conductivity}uS/cm - ${maximum.conductivity}uS/cm`;
+  document.getElementById('parameterRange_nitrogen').textContent = `${minimum.nitrogen}mg/L - ${maximum.nitrogen}mg/L`;
+  document.getElementById('parameterRange_phosphorus').textContent = `${minimum.phosphorus}mg/L - ${maximum.phosphorus}mg/L`;
+  document.getElementById('parameterRange_potassium').textContent = `${minimum.potassium}mg/L - ${maximum.potassium}mg/L`;
+}
+
+function updateParametersFields(minimum, maximum) {
+
+  document.getElementById('phMinimum').value = minimum.ph;
+  document.getElementById('moistureMinimum').value = minimum.moisture;
+  document.getElementById('temperatureMinimum').value = minimum.temperature;
+  document.getElementById('conductivityMinimum').value = minimum.conductivity;
+  document.getElementById('nitrogenMinimum').value = minimum.nitrogen;
+  document.getElementById('phosphorusMinimum').value = minimum.phosphorus;
+  document.getElementById('potassiumMinimum').value = minimum.potassium;
+
+  document.getElementById('phMaximum').value = maximum.ph
+  document.getElementById('moistureMaximum').value = maximum.moisture
+  document.getElementById('temperatureMaximum').value = maximum.temperature
+  document.getElementById('conductivityMaximum').value = maximum.conductivity
+  document.getElementById('nitrogenMaximum').value = maximum.nitrogen
+  document.getElementById('phosphorusMaximum').value = maximum.phosphorus
+  document.getElementById('potassiumMaximum').value = maximum.potassium
+};
+
+function checkAgainstParameter_LLD(minimum, maximum){
+
+  const target = {
+    LLD_ph: { min: minimum.ph, max: maximum.ph },
+    LLD_moisture: { min: minimum.moisture, max: maximum.moisture },
+    LLD_temperature: { min: minimum.temperature, max: maximum.temperature },
+    LLD_conductivity: { min: minimum.conductivity, max: maximum.conductivity },
+    LLD_nitrogen: { min: minimum.nitrogen, max: maximum.nitrogen },
+    LLD_phosphorus: { min: minimum.phosphorus, max: maximum.phosphorus },
+    LLD_potassium: { min: minimum.potassium, max: maximum.potassium },
+  };
+
+  for (const [id, { min, max }] of Object.entries(target)) {
+    const span = document.getElementById(id);
+    const value = parseFloat(span.textContent);
+
+    if (value < min) {
+      span.style.color = 'red';
+    } else if (value > max) {
+      span.style.color = 'red';
+    }
+  }
+}

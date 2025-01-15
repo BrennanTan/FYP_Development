@@ -16,7 +16,7 @@
             <div class="card-body">
               <h5 class="card-title">Set Parameters</h5>
               <div class="alert alert-primary" role="alert">
-                <strong>Input minimum and maximum values wanted. Leave text field empty for default values!</strong>
+                <strong>Input minimum and maximum values.</strong>
               </div>              
               <form id="parametersForm">
               <div class="row">
@@ -118,6 +118,12 @@
         })
         .catch(error => console.error('Error loading navbar:', error));
 
+        fetchParameters().then(data => {
+          if (data) {
+            updateParametersFields(data.minimum, data.maximum)
+          }
+        });
+
         document.getElementById('parametersForm').addEventListener('submit', async function(e) {
           e.preventDefault();
           
@@ -152,6 +158,9 @@
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
+                }else if (response.ok) {
+                  alert('Successfully set parameters');
+                  window.location.href = "../";
                 }
 
             } catch (error) {
