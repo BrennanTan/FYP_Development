@@ -95,97 +95,141 @@ async function fetchDataForDate(selectedDate, page = 1) {
   }
 }
 
-// Function to update table with fetched data
-function updateTable(result, selectedDate) {
-    const { data, pagination } = result;
-    const tableBody = document.getElementById('dataByDateTable');
-    const paginationContainer = document.getElementById('pagination');
-    
-    tableBody.innerHTML = '';
-    paginationContainer.innerHTML = '';
+function updateTable(result, selectedDate, parameters) {
+  const { data, pagination } = result;
+  const tableBody = document.getElementById('dataByDateTable');
+  const paginationContainer = document.getElementById('pagination');
+  
+  // Helper function to determine cell styling based on min/max comparison
+  const getStyleForValue = (value, parameterName) => {
+      // Return empty style if no parameters exist or if the specific parameter is missing
+      if (!parameters || !parameters.minimum || !parameters.maximum) return '';
+      
+      const min = parameters.minimum?.[parameterName];
+      const max = parameters.maximum?.[parameterName];
+      
+      // If either min or max is missing for this parameter, return empty style
+      if (min === undefined || min === null || max === undefined || max === null) return '';
+      
+      if (value < min) {
+          return 'color: red;';
+      } else if (value > max) {
+          return 'color: red;';
+      }
+      return '';
+  };
 
-    if (!data || data.length === 0) {
-        const row = document.createElement('tr');
-        const cell = document.createElement('td');
-        cell.colSpan = 8;
-        cell.textContent = 'No data found for selected date';
-        cell.className = 'text-center p-4';
-        row.appendChild(cell);
-        tableBody.appendChild(row);
-        return;
-    }
+  tableBody.innerHTML = '';
+  paginationContainer.innerHTML = '';
+  
+  if (!data || data.length === 0) {
+      const row = document.createElement('tr');
+      const cell = document.createElement('td');
+      cell.colSpan = 8;
+      cell.textContent = 'No data found for selected date';
+      cell.className = 'text-center p-4';
+      row.appendChild(cell);
+      tableBody.appendChild(row);
+      return;
+  }
 
-    // Display data
-    data.forEach(sensorDataByDate => {
-        const row = document.createElement('tr');
-        const timestamp = new Date(sensorDataByDate.timestamp);
-        const formattedTime = timestamp.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        });
-       
-        row.innerHTML = `
-            <td>${formattedTime}</td>
-            <td>${sensorDataByDate.pH.toFixed(2)}</td>
-            <td>${sensorDataByDate.moisture.toFixed(2)}%</td>
-            <td>${sensorDataByDate.temperature.toFixed(2)}°C</td>
-            <td>${sensorDataByDate.conductivity.toFixed(2)} µS/cm</td>
-            <td>${sensorDataByDate.nitrogen.toFixed(2)} mg/kg</td>
-            <td>${sensorDataByDate.phosphorus.toFixed(2)} mg/kg</td>
-            <td>${sensorDataByDate.potassium.toFixed(2)} mg/kg</td>
-        `;
-       
-        tableBody.appendChild(row);
-    });
+  // Display data with styling
+  data.forEach(sensorDataByDate => {
+      const row = document.createElement('tr');
+      const timestamp = new Date(sensorDataByDate.timestamp);
+      const formattedTime = timestamp.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+      });
 
-    // Create pagination if we have pagination info
-    if (pagination && pagination.totalPages > 1) {
-        const paginationUl = document.createElement('ul');
-        paginationUl.className = 'pagination justify-content-center';
+      // Create cells with conditional styling
+      const cells = [
+          { value: formattedTime },
+          { value: sensorDataByDate.pH?.toFixed(2) ?? 'N/A', param: 'ph' },
+          { value: sensorDataByDate.moisture?.toFixed(2) ?? 'N/A', param: 'moisture', unit: '%' },
+          { value: sensorDataByDate.temperature?.toFixed(2) ?? 'N/A', param: 'temperature', unit: '°C' },
+          { value: sensorDataByDate.conductivity?.toFixed(2) ?? 'N/A', param: 'conductivity', unit: ' µS/cm' },
+          { value: sensorDataByDate.nitrogen?.toFixed(2) ?? 'N/A', param: 'nitrogen', unit: ' mg/kg' },
+          { value: sensorDataByDate.phosphorus?.toFixed(2) ?? 'N/A', param: 'phosphorus', unit: ' mg/kg' },
+          { value: sensorDataByDate.potassium?.toFixed(2) ?? 'N/A', param: 'potassium', unit: ' mg/kg' }
+      ];
 
-        // Previous button
-        const prevLi = document.createElement('li');
-        prevLi.className = `page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`;
-        prevLi.innerHTML = `<a class="page-link" href="#" ${pagination.currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : ''}>Previous</a>`;
-        prevLi.onclick = async (e) => {
-            e.preventDefault();
-            if (pagination.currentPage > 1) {
-                const newResult = await fetchDataForDate(selectedDate, pagination.currentPage - 1);
-                updateTable(newResult, selectedDate);
-            }
-        };
-        paginationUl.appendChild(prevLi);
+      row.innerHTML = cells.map((cell, index) => {
+          if (index === 0) return `<td>${cell.value}</td>`; // Time column, no styling
+          
+          // Only apply styling if the value is numeric
+          const numericValue = parseFloat(cell.value);
+          const style = !isNaN(numericValue) ? getStyleForValue(numericValue, cell.param) : '';
+          const unit = !isNaN(numericValue) ? (cell.unit || '') : '';
+          
+          return `<td style="${style}">${cell.value}${unit}</td>`;
+      }).join('');
+      
+      tableBody.appendChild(row);
+  });
 
-        // Page numbers
-        for (let i = 1; i <= pagination.totalPages; i++) {
-            const li = document.createElement('li');
-            li.className = `page-item ${pagination.currentPage === i ? 'active' : ''}`;
-            li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-            li.onclick = async (e) => {
-                e.preventDefault();
-                const newResult = await fetchDataForDate(selectedDate, i);
-                updateTable(newResult, selectedDate);
-            };
-            paginationUl.appendChild(li);
-        }
+  // Pagination code
+  if (pagination && pagination.totalPages > 1) {
+      const paginationUl = document.createElement('ul');
+      paginationUl.className = 'pagination justify-content-center';
+      
+      // Previous button
+      const prevLi = document.createElement('li');
+      prevLi.className = `page-item ${pagination.currentPage === 1 ? 'disabled' : ''}`;
+      prevLi.innerHTML = `<a class="page-link" href="#" ${pagination.currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : ''}>Previous</a>`;
+      prevLi.onclick = async (e) => {
+          e.preventDefault();
+          if (pagination.currentPage > 1) {
+              try {
+                  const newResult = await fetchDataForDate(selectedDate, pagination.currentPage - 1);
+                  const parameters = await fetchParameters().catch(() => null); // Handle failed parameter fetch
+                  updateTable(newResult, selectedDate, parameters);
+              } catch (error) {
+                  console.error('Error updating table:', error);
+              }
+          }
+      };
+      paginationUl.appendChild(prevLi);
 
-        // Next button
-        const nextLi = document.createElement('li');
-        nextLi.className = `page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`;
-        nextLi.innerHTML = `<a class="page-link" href="#" ${pagination.currentPage === pagination.totalPages ? 'tabindex="-1" aria-disabled="true"' : ''}>Next</a>`;
-        nextLi.onclick = async (e) => {
-            e.preventDefault();
-            if (pagination.currentPage < pagination.totalPages) {
-                const newResult = await fetchDataForDate(selectedDate, pagination.currentPage + 1);
-                updateTable(newResult, selectedDate);
-            }
-        };
-        paginationUl.appendChild(nextLi);
+      // Page numbers
+      for (let i = 1; i <= pagination.totalPages; i++) {
+          const li = document.createElement('li');
+          li.className = `page-item ${pagination.currentPage === i ? 'active' : ''}`;
+          li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+          li.onclick = async (e) => {
+              e.preventDefault();
+              try {
+                  const newResult = await fetchDataForDate(selectedDate, i);
+                  const parameters = await fetchParameters().catch(() => null); // Handle failed parameter fetch
+                  updateTable(newResult, selectedDate, parameters);
+              } catch (error) {
+                  console.error('Error updating table:', error);
+              }
+          };
+          paginationUl.appendChild(li);
+      }
 
-        paginationContainer.appendChild(paginationUl);
-    }
+      // Next button
+      const nextLi = document.createElement('li');
+      nextLi.className = `page-item ${pagination.currentPage === pagination.totalPages ? 'disabled' : ''}`;
+      nextLi.innerHTML = `<a class="page-link" href="#" ${pagination.currentPage === pagination.totalPages ? 'tabindex="-1" aria-disabled="true"' : ''}>Next</a>`;
+      nextLi.onclick = async (e) => {
+          e.preventDefault();
+          if (pagination.currentPage < pagination.totalPages) {
+              try {
+                  const newResult = await fetchDataForDate(selectedDate, pagination.currentPage + 1);
+                  const parameters = await fetchParameters().catch(() => null); // Handle failed parameter fetch
+                  updateTable(newResult, selectedDate, parameters);
+              } catch (error) {
+                  console.error('Error updating table:', error);
+              }
+          }
+      };
+      paginationUl.appendChild(nextLi);
+      paginationContainer.appendChild(paginationUl);
+  }
 }
 
 async function fetchParameters() {

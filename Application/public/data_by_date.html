@@ -87,13 +87,15 @@
         const searchByDateButton = document.getElementById('searchByDateButton');
         let selectedDate = new Date(dateInput.value);
         const initialResult = await fetchDataForDate(selectedDate, 1);
-        updateTable(initialResult, selectedDate);
+        const parameters = await fetchParameters().catch(() => null);
+        updateTable(initialResult, selectedDate, parameters);
 
         // Search button click handler
         searchByDateButton.addEventListener('click', async () => {
           selectedDate = new Date(dateInput.value);
           const result = await fetchDataForDate(selectedDate, 1);
-          updateTable(result, selectedDate);
+          const parameters = await fetchParameters().catch(() => null);
+          updateTable(result, selectedDate, parameters);
         });
       });
 
