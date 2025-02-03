@@ -5,6 +5,7 @@ const http = require('http');
 const path = require('path');
 const cors = require('cors');
 const { Parser } = require('json2csv');
+const axios = require('axios');
 
 const serviceAccount = require(path.join(__dirname, 'fyp-iot-db-firebase-adminsdk-ayz7x-41b7d0c290.json'));
 admin.initializeApp({
@@ -17,6 +18,7 @@ const db = admin.database();
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+const ESP32_IP = 'http://192.168.1.100:80';
 
 app.use(cors());
 app.use(express.json());
@@ -48,7 +50,6 @@ app.get('/getLastLoggedData', async (req, res) => {
     try {
       const snapshot = await db.ref('lastLoggedData').once('value');
       const data = snapshot.val();
-      console.log("Last logged data: "+data);
       res.status(200).json(data || {});
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch data' });
@@ -118,8 +119,8 @@ app.get('/getParameters', async (req, res) => {
     const maximumData = maximumSnapshot.val();
 
     res.status(200).json({
-      minimum: minimumData || {},
-      maximum: maximumData || {},
+      minimum: minimumData || null,
+      maximum: maximumData || null,
     });
 
   } catch (error) {
@@ -252,6 +253,19 @@ app.post('/setParameters', async (req, res) => {
   } catch (error) {
       console.error('Error setting parameters:', error);
       res.status(500).json({ error: 'Failed to set parameters' });
+  }
+});
+
+app.get('/waterPumpOn', async (req, res) => {
+  const { duration } = req.query;
+  try {
+    const response = await axios.get(`${ESP32_IP}/waterPumpOn`, {
+      params: { duration: duration || 3 },
+    });
+    res.send(response.data);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Error controlling the pump');
   }
 });
 

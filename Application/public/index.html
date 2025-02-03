@@ -27,17 +27,19 @@
           </div>
         </div>
 
-        <div class="col-3" style="padding-top: 12px;">
+        <div class="col-4" style="padding-top: 12px;">
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">Target Parameters</h5>
-              <p class="card-text"><strong>pH:</strong> <span id="parameterRange_ph"></span></p>
-              <p class="card-text"><strong>Moisture:</strong> <span id="parameterRange_moisture"></span></p>
-              <p class="card-text"><strong>Temperature:</strong> <span id="parameterRange_temperature"></span></p>
-              <p class="card-text"><strong>Conductivity:</strong> <span id="parameterRange_conductivity"></span></p>
-              <p class="card-text"><strong>Nitrogen:</strong> <span id="parameterRange_nitrogen"></span></p>
-              <p class="card-text"><strong>Phosphorus:</strong> <span id="parameterRange_phosphorus"></span></p>
-              <p class="card-text"><strong>Potassium:</strong> <span id="parameterRange_potassium"></span></p>
+              <div id="changeIfNoParameter">
+                <p class="card-text"><strong>pH:</strong> <span id="parameterRange_ph"></span></p>
+                <p class="card-text"><strong>Moisture:</strong> <span id="parameterRange_moisture"></span></p>
+                <p class="card-text"><strong>Temperature:</strong> <span id="parameterRange_temperature"></span></p>
+                <p class="card-text"><strong>Conductivity:</strong> <span id="parameterRange_conductivity"></span></p>
+                <p class="card-text"><strong>Nitrogen:</strong> <span id="parameterRange_nitrogen"></span></p>
+                <p class="card-text"><strong>Phosphorus:</strong> <span id="parameterRange_phosphorus"></span></p>
+                <p class="card-text"><strong>Potassium:</strong> <span id="parameterRange_potassium"></span></p>
+              </div>
               <a href="set_parameters.html" class="btn btn-primary">Set target parameters</a>
             </div>
           </div>
@@ -46,8 +48,13 @@
         <div class="col-3" style="padding-top: 12px;">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Lorem ipsum</h5>
-
+              <h5 class="card-title">Water Pump Control</h5>
+              <form id="pumpForm">
+                <label class="form-label" for="duration">Enter duration (in seconds):</label>
+                <input class="form-control mb-3" type="number" id="duration" name="duration" min="1" required>
+                <button class="btn btn-primary" type="submit">Activate Pump</button>
+              </form>
+              <div id="response"></div>
             </div>
           </div>
         </div>
@@ -66,12 +73,33 @@
         .catch(error => console.error('Error loading navbar:', error));
       fetchLastLoggedData();
       fetchParameters().then(data => {
-          if (data) {
+          if (data.length > 0) {
             fillTargetParameters(data.minimum, data.maximum);
             checkAgainstParameter_LLD(data.minimum, data.maximum);
+          }else{
+            const changeTargetParametersBox = document.getElementById('changeIfNoParameter');
+            changeTargetParametersBox.innerHTML = `<div class="alert alert-warning" role="alert">
+              Warning: Set target parameters to enable <strong>colour highlighting</strong> when values out of range and enable <strong>auto watering</strong>
+              </div>`;
           }
         });
       const socket = initializeWebSocket();
+
+      document.getElementById('pumpForm').addEventListener('submit', async (event) => {
+      event.preventDefault(); // Prevent form from reloading the page
+
+      const duration = document.getElementById('duration').value;
+
+      try {
+        // Send a request to the API
+        const response = await fetch(`http://localhost:3000/waterPumpOn?duration=${duration}`);
+        const result = await response.text();
+        document.getElementById('response').textContent = `Server Response: ${result}`;
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('response').textContent = 'Failed to control the pump.';
+      }
+    });
     </script>
   </body>
 </html>
