@@ -294,4 +294,138 @@ function checkAgainstParameter_LLD(minimum, maximum){
       span.style.color = 'red';
     }
   }
+};
+
+const plantParameters = {
+  cabbage: {
+    minimum: {
+      ph: 6.0,
+      moisture: 60,
+      temperature: 15,
+      conductivity: 500,
+      nitrogen: 150,
+      phosphorus: 50,
+      potassium: 200
+    },
+    maximum: {
+      ph: 6.8,
+      moisture: 80,
+      temperature: 24,
+      conductivity: 1500,
+      nitrogen: 250,
+      phosphorus: 70,
+      potassium: 300
+    }
+  },
+  okra: {
+    minimum: {
+      ph: 6.0,
+      moisture: 60,
+      temperature: 25,
+      conductivity: 1000,
+      nitrogen: 150,
+      phosphorus: 50,
+      potassium: 200
+    },
+    maximum: {
+      ph: 6.8,
+      moisture: 80,
+      temperature: 35,
+      conductivity: 2000,
+      nitrogen: 250,
+      phosphorus: 80,
+      potassium: 300
+    }
+  },
+  chili: {
+    minimum: {
+      ph: 6.0,
+      moisture: 60,
+      temperature: 20,
+      conductivity: 1000,
+      nitrogen: 100,
+      phosphorus: 50,
+      potassium: 150
+    },
+    maximum: {
+      ph: 6.5,
+      moisture: 80,
+      temperature: 29,
+      conductivity: 2000,
+      nitrogen: 200,
+      phosphorus: 70,
+      potassium: 250
+    }
+  },
+  hibiscus: {
+    minimum: {
+      ph: 5.5,
+      moisture: 60,
+      temperature: 20,
+      conductivity: 800,
+      nitrogen: 100,
+      phosphorus: 40,
+      potassium: 150
+    },
+    maximum: {
+      ph: 7.0,
+      moisture: 80,
+      temperature: 30,
+      conductivity: 1600,
+      nitrogen: 150,
+      phosphorus: 70,
+      potassium: 250
+    }
+  },
+  snakePlant: {
+    minimum: {
+      ph: 6,
+      moisture: 20,
+      temperature: 20,
+      conductivity: 300,
+      nitrogen: 50,
+      phosphorus: 20,
+      potassium: 50
+    },
+    maximum: {
+      ph: 7.5,
+      moisture: 40,
+      temperature: 30,
+      conductivity: 800,
+      nitrogen: 100,
+      phosphorus: 40,
+      potassium: 100
+    }
+  }
+};
+
+async function presetParameter(plant) {
+
+  if (!plantParameters[plant]) {
+    alert('Invalid plant selection');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/setParameters', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        parameterMinimum: plantParameters[plant].minimum,
+        parameterMaximum: plantParameters[plant].maximum
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    alert('Successfully set parameters');
+    window.location.href = "../";
+  } catch (error) {
+    console.error('Error setting parameters:', error);
+    alert('Something went wrong. Failed to set parameters.');
+  }
 }

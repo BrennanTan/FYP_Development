@@ -14,6 +14,19 @@
         <div style="padding-top: 12px;">
           <div class="card">
             <div class="card-body">
+              <h5 class="card-title">Preset Plant Parameters</h5>
+              <button class="btn btn-primary" id="parameterButton_Cabbage" onclick="presetParameter('cabbage')">Cabbage</button>
+              <button class="btn btn-primary" id="parameterButton_Okra" onclick="presetParameter('okra')">Okra</button>
+              <button class="btn btn-primary" id="parameterButton_Chili" onclick="presetParameter('chili')">Chili</button>
+              <button class="btn btn-primary" id="parameterButton_Hibiscus" onclick="presetParameter('hibiscus')">Hibiscus</button>
+              <button class="btn btn-primary" id="parameterButton_SnakePlant" onclick="presetParameter('snakePlant')">Snake Plant</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding-top: 12px;">
+          <div class="card">
+            <div class="card-body">
               <h5 class="card-title">Set Parameters</h5>
               <div class="alert alert-primary" role="alert">
                 <strong>Input minimum and maximum values.</strong>
@@ -119,7 +132,7 @@
         .catch(error => console.error('Error loading navbar:', error));
 
         fetchParameters().then(data => {
-          if (data  > 0) {
+          if (data) {
             updateParametersFields(data.minimum, data.maximum)
           }
         });

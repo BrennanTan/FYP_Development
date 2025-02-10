@@ -6,7 +6,7 @@
 #define RE 4
 #define RXD2 17
 #define TXD2 16
-#define RELAY_PIN 21
+#define RELAY_PIN 23
 
 WiFiClient client;
 WebServer server(80);
@@ -19,10 +19,12 @@ IPAddress subnet(255, 255, 255, 0);
 const char* API_ENDPOINT_SENDDATA = "http://192.168.68.57:3000/sendData"; //Change out the IP
 const char* API_ENDPOINT_GETPARAMETERS = "http://192.168.68.57:3000/getParameters"; //Change out the IP
 
-// const char* WIFI_SSID = "Renegade The Great";
-// const char* WIFI_PASSWORD = "surinnic_7";
-const char* WIFI_SSID = "PSR@Student";
-const char* WIFI_PASSWORD = "educationandliving";
+const char* WIFI_SSID = "Renegade The Great";
+const char* WIFI_PASSWORD = "surinnic_7";
+// const char* WIFI_SSID = "TSC@Student";
+// const char* WIFI_PASSWORD = "lifelongeducation";
+// const char* WIFI_SSID = "PSR@Student";
+// const char* WIFI_PASSWORD = "educationandliving";
 
 // Sensor commands
 //Moisture
@@ -225,6 +227,5 @@ void loop() {
   // Post data to API
   postToAPI(moisture, temperature, conductivity, pH, nitrogen, phosphorus, potassium);
   checkAndHydrate(moisture);
-
   delay(3000);
 }
