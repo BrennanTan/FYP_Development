@@ -18,7 +18,8 @@ const db = admin.database();
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const ESP32_IP = 'http://192.168.1.100:80';
+const ESP32_IP = 'http://172.19.71.150:80';
+
 
 app.use(cors());
 app.use(express.json());

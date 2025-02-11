@@ -11,20 +11,16 @@
 WiFiClient client;
 WebServer server(80);
 
-IPAddress local_IP(192, 168, 1, 100); // Static IP for ESP32
-IPAddress gateway(192, 168, 1, 1);
-IPAddress subnet(255, 255, 255, 0);
-
 // API endpoint and credentials
-const char* API_ENDPOINT_SENDDATA = "http://192.168.68.57:3000/sendData"; //Change out the IP
-const char* API_ENDPOINT_GETPARAMETERS = "http://192.168.68.57:3000/getParameters"; //Change out the IP
+const char* API_ENDPOINT_SENDDATA = "http://172.19.70.151:3000/sendData"; //Change out the IP
+const char* API_ENDPOINT_GETPARAMETERS = "http://172.19.70.151:3000/getParameters"; //Change out the IP
 
-const char* WIFI_SSID = "Renegade The Great";
-const char* WIFI_PASSWORD = "surinnic_7";
+// const char* WIFI_SSID = "Renegade The Great";
+// const char* WIFI_PASSWORD = "surinnic_7";
 // const char* WIFI_SSID = "TSC@Student";
 // const char* WIFI_PASSWORD = "lifelongeducation";
-// const char* WIFI_SSID = "PSR@Student";
-// const char* WIFI_PASSWORD = "educationandliving";
+const char* WIFI_SSID = "PSR@Student";
+const char* WIFI_PASSWORD = "educationandliving";
 
 // Sensor commands
 //Moisture
@@ -53,10 +49,6 @@ void setup() {
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, HIGH);  // Start with relay off
 
-  // Connect to Wi-Fi
-  if (!WiFi.config(local_IP, gateway, subnet)) {
-    Serial.println("Failed to configure static IP");
-  }
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
       delay(1000);
@@ -120,7 +112,6 @@ void postToAPI(float moisture, float temperature, float conductivity, float pH,
       int httpResponseCode = http.POST(jsonData);
       if (httpResponseCode > 0) {
           Serial.println("Response code: " + String(httpResponseCode));
-          Serial.println("Response: " + http.getString());
       } else {
           Serial.println("Error on sending POST: " + String(http.errorToString(httpResponseCode)));
       }
@@ -142,29 +133,39 @@ void checkAndHydrate(float moisture) {
       String response = http.getString();
       Serial.println("Response: " + response);
 
-      // Parse the JSON response
-      DynamicJsonDocument doc(1024);
-      deserializeJson(doc, response);
+      JsonDocument doc;
+      DeserializationError error = deserializeJson(doc, response);
 
-      // Check if "minimum" and "maximum" are set and valid
-      if (doc["minimum"].isNull() || doc["maximum"].isNull()) {
+      if (error) {
+        Serial.print("deserializeJson() failed: ");
+        Serial.println(error.c_str());
+        return;
+      }
+
+      if (doc["minimum"]["moisture"].isNull() || doc["maximum"]["moisture"].isNull()) {
         Serial.println("Minimum or maximum not set. Skipping auto watering.");
-      } else {
-        int minimum = doc["minimum"];
-        int maximum = doc["maximum"];
-        Serial.println("Minimum: " + String(minimum));
-        Serial.println("Maximum: " + String(maximum));
+      }else{
+        for (JsonPair item : doc.as<JsonObject>()) {
+          const char* item_key = item.key().c_str();
+          int value_moisture = item.value()["moisture"];
+        }
+      
+        int min_moisture = doc["minimum"]["moisture"];
+        int max_moisture = doc["maximum"]["moisture"];
+        Serial.println("Minimum: " + String(min_moisture));
+        Serial.println("Maximum: " + String(max_moisture));
 
-        if (moisture < minimum) {
+        if (moisture < min_moisture) {
           // Turn on
           digitalWrite(RELAY_PIN, LOW);
           Serial.println("Water pump turned ON");
-        } else if (moisture >= maximum) {
+        } else if (moisture >= max_moisture) {
           // Turn off
           digitalWrite(RELAY_PIN, HIGH);
           Serial.println("Water pump turned OFF");
         }
-      }
+      }  
+      
     } else {
       Serial.println("Error on GET: " + String(http.errorToString(httpResponseCode)));
     }
@@ -224,8 +225,8 @@ void loop() {
   Serial.println("Potassium: " + String(potassium) + " mg/L");
 
   Serial.println("------------------------------------");
+  checkAndHydrate(moisture);
   // Post data to API
   postToAPI(moisture, temperature, conductivity, pH, nitrogen, phosphorus, potassium);
-  checkAndHydrate(moisture);
   delay(3000);
 }
