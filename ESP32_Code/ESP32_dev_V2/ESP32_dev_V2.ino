@@ -6,14 +6,14 @@
 #define RE 4
 #define RXD2 17
 #define TXD2 16
-#define RELAY_PIN 23
+#define RELAY_PIN 27
 
 WiFiClient client;
 WebServer server(80);
 
 // API endpoint and credentials
-const char* API_ENDPOINT_SENDDATA = "http://172.19.70.151:3000/sendData"; //Change out the IP
-const char* API_ENDPOINT_GETPARAMETERS = "http://172.19.70.151:3000/getParameters"; //Change out the IP
+const char* API_ENDPOINT_SENDDATA = "http://172.19.70.209:3000/sendData"; //Change out the IP
+const char* API_ENDPOINT_GETPARAMETERS = "http://172.19.70.209:3000/getParameters"; //Change out the IP
 
 // const char* WIFI_SSID = "Renegade The Great";
 // const char* WIFI_PASSWORD = "surinnic_7";

@@ -429,3 +429,143 @@ async function presetParameter(plant) {
     alert('Something went wrong. Failed to set parameters.');
   }
 }
+
+async function fetchDataForChart(selectedDate) {
+  const dateString = selectedDate.toISOString().split('T')[0];
+  
+  try {
+    const response = await fetch(`/getSensorData/${dateString}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        console.log('No data available for selected date');
+        return { data: [] };
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+
+    // Sort by ascending
+    result.data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+    return result;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return { data: []};
+  }
+}
+
+const chartInstances = {};
+
+function createLineChart(canvasId, sensorDataName, chartData) {
+  if (!chartData || chartData.data.length === 0) {
+    console.log(`No data available for ${sensorDataName}.`);
+    return;
+  }
+
+  const labels = chartData.data.map(entry => new Date(entry.timestamp).toLocaleTimeString());
+  const sensorColors = {
+    "moisture": "blue",
+    "temperature": "orange",
+    "pH": "green",
+    "conductivity": "yellow"
+  };
+  const minValue = {
+    "moisture": 0,
+    "temperature": 24,
+    "pH": 0,
+    "conductivity": 500
+  };
+  const maxValue = {
+    "moisture": 100,
+    "temperature": 38,
+    "pH": 14,
+    "conductivity": 1500
+  };
+  const stepSize = {
+    "moisture": 10,
+    "temperature": 2,
+    "pH": 2,
+    "conductivity": 250
+  };
+
+  const ctx = document.getElementById(canvasId).getContext("2d");
+
+  // Destroy previous chart instance if it exists
+  if (chartInstances[canvasId]) {
+    chartInstances[canvasId].destroy();
+  }
+
+  // Create a new Chart instance and store it
+  chartInstances[canvasId] = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: sensorDataName,
+        data: chartData.data.map(entry => entry[sensorDataName]), // Extract specific sensor data
+        borderColor: sensorColors[sensorDataName] || "gray",
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { title: { display: true, text: "Time" } },
+        y: { 
+          title: { display: true, text: `${sensorDataName} value` },
+          min: minValue[sensorDataName],
+          max: maxValue[sensorDataName],
+          ticks: { stepSize: stepSize[sensorDataName] } 
+        }
+      }
+    }
+  });
+}
+
+function createBarChart(canvasId, chartData) {
+  const ctx = document.getElementById(canvasId).getContext("2d");
+
+  if (chartInstances[canvasId]) {
+    chartInstances[canvasId].destroy();
+  }
+
+  const nutrientTypes = ["potassium", "phosphorus", "nitrogen"];
+
+  const sensorColors = {
+    "potassium": "blue",
+    "phosphorus": "orange",
+    "nitrogen": "green",
+  };
+
+  const labels = chartData.data.map(entry => new Date(entry.timestamp).toLocaleTimeString());
+
+  const datasets = nutrientTypes.map(nutrient => ({
+    label: nutrient,
+    data: chartData.data.map(entry => entry[nutrient] || 0),
+    backgroundColor: sensorColors[nutrient] || "gray"
+  }));
+
+  chartInstances[canvasId] = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          title: { display: true, text: "Time" }
+        },
+        y: {
+          title: { display: true, text: "Nutrient Levels" },
+          min: 0,
+          max: 800,
+          ticks: { stepSize: 100 }
+        }
+      }
+    }
+  });
+}

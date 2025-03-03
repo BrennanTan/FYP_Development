@@ -18,12 +18,11 @@ const db = admin.database();
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const ESP32_IP = 'http://172.19.71.150:80';
+const ESP32_IP = 'http://172.19.70.170:80';
 
 
 app.use(cors());
 app.use(express.json());
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 let clients = [];
