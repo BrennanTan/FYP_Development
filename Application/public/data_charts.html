@@ -22,7 +22,7 @@
             </div>
         </div>
         <div style="padding-top: 12px;">
-            <button class="btn btn-primary" onclick="downloadAllCharts()">Download All Charts</button>
+            <button class="btn btn-primary" id="downloadAllButton" onclick="downloadAllCharts()">Download All Charts</button>
         </div>
         <div style="padding-top: 12px;">
             <div class="row">
@@ -30,8 +30,11 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Moisture chart</h5>
+                            <div class="no-data-message alert alert-warning" role="alert">
+                                No data found
+                            </div>                            
                             <canvas id="moistureChart"></canvas>
-                            <button class="btn btn-primary" onclick="downloadChart('moistureChart', 'Moisture Chart.png')">Download as image</button>
+                            <button class="hide-button btn btn-primary" onclick="downloadChart('moistureChart', 'Moisture Chart.png')">Download as image</button>
                         </div>
                     </div>
                 </div>
@@ -39,8 +42,11 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Temperature chart</h5>
+                            <div class="no-data-message alert alert-warning" role="alert">
+                                No data found
+                            </div>                            
                             <canvas id="temperatureChart"></canvas>
-                            <button class="btn btn-primary" onclick="downloadChart('temperatureChart', 'Temperature Chart.png')">Download as image</button>
+                            <button class="hide-button btn btn-primary" onclick="downloadChart('temperatureChart', 'Temperature Chart.png')">Download as image</button>
                         </div>
                     </div>
                 </div>   
@@ -52,8 +58,11 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">pH chart</h5>
+                            <div class="no-data-message alert alert-warning" role="alert">
+                                No data found
+                            </div>                            
                             <canvas id="pHChart"></canvas>
-                            <button class="btn btn-primary" onclick="downloadChart('pHChart', 'pH Chart.png')">Download as image</button>
+                            <button class="hide-button btn btn-primary" onclick="downloadChart('pHChart', 'pH Chart.png')">Download as image</button>
                         </div>
                     </div>
                 </div>
@@ -61,8 +70,11 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Conductivity chart</h5>
+                            <div class="no-data-message alert alert-warning" role="alert">
+                                No data found
+                            </div>                            
                             <canvas id="conductivityChart"></canvas>
-                            <button class="btn btn-primary" onclick="downloadChart('conductivityChart', 'Conductivity Chart.png')">Download as image</button>
+                            <button class="hide-button btn btn-primary" onclick="downloadChart('conductivityChart', 'Conductivity Chart.png')">Download as image</button>
                         </div>
                     </div>
                 </div>
@@ -74,8 +86,11 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Nutrients chart</h5>
+                            <div class="no-data-message alert alert-warning" style="display: none;" role="alert">
+                                No data found
+                            </div>                              
                             <canvas id="nutrientsChart"></canvas>
-                            <button class="btn btn-primary" onclick="downloadChart('nutrientsChart', 'Nutrients Chart.png')">Download as image</button>
+                            <button class="hide-button btn btn-primary" onclick="downloadChart('nutrientsChart', 'Nutrients Chart.png')">Download as image</button>
                         </div>
                     </div>
                 </div>
@@ -107,13 +122,48 @@
 
         async function updateCharts(selectedDate) {
             const chartData = await fetchDataForChart(selectedDate);
+            
+            // Define chart IDs
+            const charts = ["moistureChart", "temperatureChart", "pHChart", "conductivityChart", "nutrientsChart"];
 
-            createLineChart("moistureChart", "moisture", chartData);
-            createLineChart("temperatureChart", "temperature", chartData);
-            createLineChart("pHChart", "pH", chartData);
-            createLineChart("conductivityChart", "conductivity", chartData);
-            createBarChart("nutrientsChart",chartData)
+            let hasData = false;
+            
+            for (const key in chartData) {
+                if (chartData[key].length > 0) {
+                    hasData = true;
+                    break;
+                }
+            }
+
+            charts.forEach(chartId => {
+                const canvas = document.getElementById(chartId);
+                const cardBody = canvas.closest(".card-body");
+                const noDataMessage = cardBody.querySelector(".no-data-message");
+                const hideButton = cardBody.querySelector(".hide-button");
+                const hideDownloadAllButton = document.getElementById('downloadAllButton');
+
+                if (hasData) {
+                    canvas.style.display = "block";
+                    noDataMessage.style.display = "none";
+                    hideButton.style.display = "block";
+                    hideDownloadAllButton.style.display = "block";
+                } else {
+                    canvas.style.display = "none";
+                    noDataMessage.style.display = "block";
+                    hideButton.style.display = "none";
+                    hideDownloadAllButton.style.display = "none";
+                }
+            });
+
+            if (hasData) {
+                createLineChart("moistureChart", "moisture", chartData);
+                createLineChart("temperatureChart", "temperature", chartData);
+                createLineChart("pHChart", "pH", chartData);
+                createLineChart("conductivityChart", "conductivity", chartData);
+                createBarChart("nutrientsChart", chartData);
+            }
         }
+
 
         function downloadChart(canvasId, filename) {
             const canvas = document.getElementById(canvasId);
