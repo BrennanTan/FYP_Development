@@ -23,6 +23,7 @@
         </div>
         <div style="padding-top: 12px;">
             <button class="btn btn-primary" id="downloadAllButton" onclick="downloadAllCharts()">Download All Charts</button>
+            <button type="button" class="button btn btn-success" id="emailAllButton" data-bs-toggle="modal" data-bs-target="#allChartModal">Send all chart to email</button>                              
         </div>
         <div style="padding-top: 12px;">
             <div class="row">
@@ -35,6 +36,7 @@
                             </div>                            
                             <canvas id="moistureChart"></canvas>
                             <button class="hide-button btn btn-primary" onclick="downloadChart('moistureChart', 'Moisture Chart.png')">Download as image</button>
+                            <button type="button" class="email-button btn btn-success" data-bs-toggle="modal" data-bs-target="#moistureChartModal">Send chart to email</button>                              
                         </div>
                     </div>
                 </div>
@@ -47,6 +49,7 @@
                             </div>                            
                             <canvas id="temperatureChart"></canvas>
                             <button class="hide-button btn btn-primary" onclick="downloadChart('temperatureChart', 'Temperature Chart.png')">Download as image</button>
+                            <button type="button" class="email-button btn btn-success" data-bs-toggle="modal" data-bs-target="#temperatureChartModal">Send chart to email</button>
                         </div>
                     </div>
                 </div>   
@@ -63,6 +66,7 @@
                             </div>                            
                             <canvas id="pHChart"></canvas>
                             <button class="hide-button btn btn-primary" onclick="downloadChart('pHChart', 'pH Chart.png')">Download as image</button>
+                            <button type="button" class="email-button btn btn-success" data-bs-toggle="modal" data-bs-target="#pHChartModal">Send chart to email</button>
                         </div>
                     </div>
                 </div>
@@ -75,11 +79,13 @@
                             </div>                            
                             <canvas id="conductivityChart"></canvas>
                             <button class="hide-button btn btn-primary" onclick="downloadChart('conductivityChart', 'Conductivity Chart.png')">Download as image</button>
+                            <button type="button" class="email-button btn btn-success" data-bs-toggle="modal" data-bs-target="#conductivityChartModal">Send chart to email</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div style="padding-top: 12px; padding-bottom: 12px;">
             <div class="row"> 
                 <div class="col-12">
@@ -91,14 +97,147 @@
                             </div>                              
                             <canvas id="nutrientsChart"></canvas>
                             <button class="hide-button btn btn-primary" onclick="downloadChart('nutrientsChart', 'Nutrients Chart.png')">Download as image</button>
+                            <button type="button" class="email-button btn btn-success" data-bs-toggle="modal" data-bs-target="#nutrientsChartModal">Send chart to email</button>
                         </div>
                     </div>
                 </div>
                 
             </div>
         </div>
-    </div>
 
+        <div class="modal fade" id="moistureChartModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Send chart to email</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="emailChartForm">
+                    <div class="modal-body">
+                        <label class="form-label">Enter email address:</label>
+                        <input type="email" class="form-control emailChartInput" placeholder="example@example.com" required>
+                        <input type="hidden" class="chartTypeInput" value="moisture">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Email</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+              </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="temperatureChartModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Send chart to email</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="emailChartForm">
+                    <div class="modal-body">
+                        <label class="form-label">Enter email address:</label>
+                        <input type="email" class="form-control emailChartInput" placeholder="example@example.com" required>
+                        <input type="hidden" class="chartTypeInput" value="temperature">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Email</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+              </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="pHChartModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Send chart to email</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="emailChartForm">
+                    <div class="modal-body">
+                        <label class="form-label">Enter email address:</label>
+                        <input type="email" class="form-control emailChartInput" placeholder="example@example.com" required>
+                        <input type="hidden" class="chartTypeInput" value="pH">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Email</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+              </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="conductivityChartModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Send chart to email</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="emailChartForm">
+                    <div class="modal-body">
+                        <label class="form-label">Enter email address:</label>
+                        <input type="email" class="form-control emailChartInput" placeholder="example@example.com" required>
+                        <input type="hidden" class="chartTypeInput" value="conductivity">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Email</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+              </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="nutrientsChartModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Send chart to email</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="emailChartForm">
+                    <div class="modal-body">
+                        <label class="form-label">Enter email address:</label>
+                        <input type="email" class="form-control emailChartInput" placeholder="example@example.com" required>
+                        <input type="hidden" class="chartTypeInput" value="nutrients">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Email</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+              </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="allChartModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Send all chart to email</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="emailChartForm">
+                    <div class="modal-body">
+                        <label class="form-label">Enter email address:</label>
+                        <input type="email" class="form-control emailChartInput" placeholder="example@example.com" required>
+                        <input type="hidden" class="chartTypeInput" value="all">
+                    </div>
+                    <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Send Email</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+              </div>
+            </div>
+        </div> 
+
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -141,17 +280,23 @@
                 const noDataMessage = cardBody.querySelector(".no-data-message");
                 const hideButton = cardBody.querySelector(".hide-button");
                 const hideDownloadAllButton = document.getElementById('downloadAllButton');
+                const emailButton = cardBody.querySelector(".email-button");
+                const emailAllButton = document.getElementById("emailAllButton");
 
                 if (hasData) {
                     canvas.style.display = "block";
                     noDataMessage.style.display = "none";
                     hideButton.style.display = "block";
                     hideDownloadAllButton.style.display = "block";
+                    emailButton.style.display = "block";
+                    emailAllButton.style.display = "block";
                 } else {
                     canvas.style.display = "none";
                     noDataMessage.style.display = "block";
                     hideButton.style.display = "none";
                     hideDownloadAllButton.style.display = "none";
+                    emailButton.style.display = "none";
+                    emailAllButton.style.display = "none";
                 }
             });
 
@@ -163,7 +308,6 @@
                 createBarChart("nutrientsChart", chartData);
             }
         }
-
 
         function downloadChart(canvasId, filename) {
             const canvas = document.getElementById(canvasId);
@@ -237,7 +381,43 @@
         // Search button click handler
         searchByDateButton.addEventListener('click', async () => {
         selectedDate = new Date(dateInput.value);
+        dateString = selectedDate.toISOString().split('T')[0];
         updateCharts(selectedDate);
+        });
+        
+        document.querySelectorAll('.emailChartForm').forEach(form => {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const userEmail = form.querySelector('.emailChartInput').value;
+                const chartType = form.querySelector('.chartTypeInput').value;
+
+                try {
+                    if (chartType !== "all") {
+                        let requestBody = { email: userEmail, date: dateString, chartType: chartType };
+                        const response = await fetch("/sendChart", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(requestBody)
+                        });
+                        const result = await response.json();
+                        alert(result.message);
+
+                    }else{
+                        let requestBody = { email: userEmail, date: dateString};
+                        const response = await fetch("/sendAllCharts", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(requestBody)
+                        });
+                        const result = await response.json();
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error("Error sending chart email:", error);
+                    alert("Failed to send email.");
+                }
+            });
         });
 
     </script>

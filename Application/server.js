@@ -6,6 +6,9 @@ const path = require('path');
 const cors = require('cors');
 const { Parser } = require('json2csv');
 const axios = require('axios');
+const nodemailer = require("nodemailer");
+const JSZip = require("jszip");
+const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
 
 const serviceAccount = require(path.join(__dirname, 'fyp-iot-db-firebase-adminsdk-ayz7x-41b7d0c290.json'));
 admin.initializeApp({
@@ -24,6 +27,178 @@ const ESP32_IP = 'http://172.19.70.170:80';
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+const chartWidth = 1000;
+const chartHeight = 600;
+const backgroundColor = "white";
+
+async function fetchSensorData(date) {
+  const ref = admin.database().ref(`sensorData/${date}`).limitToLast(20);;
+  const snapshot = await ref.once("value");
+  return snapshot.val() ? Object.values(snapshot.val()) : [];
+}
+
+async function generateChart(chartType, sensorData) {
+  const labels = sensorData.map((entry) =>
+    new Date(entry.timestamp).toLocaleTimeString()
+  );
+
+  const minMaxValues = {
+    moisture: { min: 0, max: 100, stepSize: 10, color: "blue" },
+    temperature: { min: 24, max: 38, stepSize: 2, color: "orange" },
+    pH: { min: 0, max: 14, stepSize: 2, color: "green" },
+    conductivity: { min: 500, max: 1500, stepSize: 250, color: "yellow" },
+    nitrogen: { color: "green" },
+    phosphorus: { color: "orange" },
+    potassium: { color: "blue" },
+  };
+
+  const chartCallback = (ChartJS) => {
+    ChartJS.defaults.font.family = "Arial";
+  };
+
+  const chartCanvas = new ChartJSNodeCanvas({
+    width: chartWidth,
+    height: chartHeight,
+    chartCallback,
+    backgroundColour: backgroundColor,
+  });
+
+  let chartConfig;
+
+  if (chartType === "nutrients") {
+    chartConfig = {
+      type: "bar",
+      data: {
+        labels,
+        datasets: ["potassium", "phosphorus", "nitrogen"].map((nutrient) => ({
+          label: nutrient,
+          data: sensorData.map((entry) => entry[nutrient] || 0),
+          backgroundColor: minMaxValues[nutrient]?.color || "gray",
+        })),
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { title: { display: true, text: "Time" } },
+          y: { title: { display: true, text: "Nutrient Levels" }, min: 0, max: 800, ticks: { stepSize: 100 } },
+        },
+      },
+    };
+  } else {
+    chartConfig = {
+      type: "line",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: chartType,
+            data: sensorData.map((entry) => entry[chartType]),
+            borderColor: minMaxValues[chartType]?.color || "gray",
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { title: { display: true, text: "Time" } },
+          y: {
+            title: { display: true, text: `${chartType} Value` },
+            min: minMaxValues[chartType]?.min || 0,
+            max: minMaxValues[chartType]?.max || 100,
+            ticks: { stepSize: minMaxValues[chartType]?.stepSize || 10 },
+          },
+        },
+      },
+    };
+  }
+
+  return await chartCanvas.renderToBuffer(chartConfig);
+}
+
+async function sendEmail(email, buffer, filename, date, isZip = false) {
+  let transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "brennantan618@gmail.com",
+      pass: "vbrd hkjj qzqq wrwu",
+    },
+  });
+
+  let mailOptions = {
+    from: "Ceres' Hand",
+    to: email,
+    subject: isZip
+      ? `All Sensor Data Charts - ${date}`
+      : `Sensor Data Chart: ${filename.split("_")[0]} - ${date}`,
+    text: isZip
+      ? `Attached is a zip file containing all sensor charts for ${date}.`
+      : `Attached is the ${filename.split("_")[0]} chart for ${date}.`,
+    attachments: [
+      {
+        filename: filename,
+        content: buffer,
+      },
+    ],
+  };
+
+  await transporter.sendMail(mailOptions);
+}
+
+app.post("/sendChart", async (req, res) => {
+  try {
+    const { email, date, chartType } = req.body;
+    const sensorData = await fetchSensorData(date);
+
+    if (!sensorData.length) {
+      return res.status(404).json({ message: "No data available for the selected date." });
+    }
+
+    const chartBuffer = await generateChart(chartType, sensorData);
+    await sendEmail(email, chartBuffer, chartType, date);
+
+    res.json({ message: "Chart emailed successfully!" });
+  } catch (error) {
+    console.error("Error sending chart:", error);
+    res.status(500).json({ message: "Failed to send chart." });
+  }
+});
+
+app.post("/sendAllCharts", async (req, res) => {
+  const { email, date } = req.body;
+
+  if (!email || !date) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    const sensorData = await fetchSensorData(date);
+
+    if (!sensorData.length) {
+      return res.status(404).json({ message: `No sensor data found for ${date}` });
+    }
+
+    const chartTypes = ["moisture", "temperature", "pH", "conductivity", "nutrients"];
+    const zip = new JSZip();
+
+    await Promise.all(
+      chartTypes.map(async (type) => {
+        const chartBuffer = await generateChart(type, sensorData);
+        zip.file(`${type}_${date}.png`, chartBuffer);
+      })
+    );
+
+    const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
+
+    await sendEmail(email, zipBuffer, `SensorCharts_${date}.zip`, date, true);
+
+    res.json({ message: `Charts zipped and sent successfully` });
+  } catch (error) {
+    console.error("Error sending charts:", error);
+    res.status(500).json({ message: "Failed to send charts." });
+  }
+});
 
 let clients = [];
 
