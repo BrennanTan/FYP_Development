@@ -149,6 +149,11 @@ async function sendEmail(email, buffer, filename, date, isZip = false) {
 app.post("/sendChart", async (req, res) => {
   try {
     const { email, date, chartType } = req.body;
+
+    if (!email || !date || !chartType) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     const sensorData = await fetchSensorData(date);
 
     if (!sensorData.length) {
@@ -156,7 +161,8 @@ app.post("/sendChart", async (req, res) => {
     }
 
     const chartBuffer = await generateChart(chartType, sensorData);
-    await sendEmail(email, chartBuffer, chartType, date);
+
+    await sendEmail(email, chartBuffer, `${chartType}_${date}.png`, date, false);
 
     res.json({ message: "Chart emailed successfully!" });
   } catch (error) {
@@ -164,6 +170,7 @@ app.post("/sendChart", async (req, res) => {
     res.status(500).json({ message: "Failed to send chart." });
   }
 });
+
 
 app.post("/sendAllCharts", async (req, res) => {
   const { email, date } = req.body;
