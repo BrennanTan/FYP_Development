@@ -1,5 +1,13 @@
 ## 🚀 Project Overview
-This project integrates an ESP32 microcontroller with a Node.js application to monitor and manage sensor data. The ESP32 collects data from various sensors and communicates with the Node.js backend for processing and visualization.
+This project integrates an ESP32 microcontroller equiped with various components, Node.js Express API, and a front end UI with HTML, CSS, Javascript. In combination, this application will receive live data from ESP32 to display and visualize as charts, and can remotely control water pump via automatic threshold detection(must be set first) or by setting a duration.
+
+## ⚙️ Features
+
+- **Real-time Sensor Monitoring**: View live data from connected sensors.
+- **View data by date and download CSV**: View data based on date, data can be downloaded as CSV.
+- **Water pump control**: Set duration of water pump and water
+- **View data as charts and download/email**: View data visualized as charts, charts can be downloaded as image or emailed to an email address
+- **Set parameters**: Set minimum/maximum thresholds for highlighted values and enables auto watering
 
 ## 📁 Repository Structure
 ```
@@ -40,8 +48,13 @@ FYP_Development/
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (version 20.15.1)
+- [Node.js] (version 20.15.1)
+- [Arduino IDE]
 - [ESP32 Dev module] used in Arduino IDE
+- [7-in-1 sensor] used (https://www.jxct-iot.com/product/showproduct.php?id=197)
+- [RS485 to TTL converter]
+- [5V relay module]
+- [Water pump and hose]
 
 ### Node.js Application Setup
 
@@ -58,7 +71,7 @@ FYP_Development/
    npm install
    ```
 
-3. **Configure firebase database credentials**:
+3. **Configure firebase database credentials**
 
 
 4. **Start the application**:
@@ -91,12 +104,3 @@ FYP_Development/
 4. **Upload the code to the ESP32**:
 
    Connect your ESP32 and upload.
-
-## ⚙️ Features
-
-- **Real-time Sensor Monitoring**: View live data from connected sensors.
-- **View data by date and download CSV**: View data based on date, data can be downloaded as CSV.
-- **Water pump control**: Set duration of water pump and water
-- **View data as charts and download/email**: View data visualized as charts, charts can be downloaded as image or emailed to an email address
-- **Set parameters**: Set minimum/maximum thresholds for highlighted values and enables auto watering
-  
