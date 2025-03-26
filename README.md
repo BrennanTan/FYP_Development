@@ -74,10 +74,13 @@ FYP_Development/
 3. **Configure firebase database credentials**
    
 
-4. **Adjust const ESP32_IP to ESP32's IP address** 
+4. **Adjust const ESP32_IP to ESP32's IP address**
 
+      ```server.js
+    const ESP32_IP = 'http://IP_ADDRESS_HERE:80';
+   ```
 
-5. **Start the application**:
+6. **Start the application**:
 
    ```bash
    npm start
@@ -109,8 +112,8 @@ FYP_Development/
    Adjust the IP address of the API endpoint
 
    ```ESP32_dev_V2.ino
-    const char* API_ENDPOINT_SENDDATA = "http://172.19.70.209:3000/sendData"; //Change out the IP
-    const char* API_ENDPOINT_GETPARAMETERS = "http://172.19.70.209:3000/getParameters"; //Change out the IP
+    const char* API_ENDPOINT_SENDDATA = "http://IP_ADDRESS_HERE:3000/sendData"; //Change out the IP
+    const char* API_ENDPOINT_GETPARAMETERS = "http://IP_ADDRESS_HERE:3000/getParameters"; //Change out the IP
    ```
    
 5. **Upload the code to the ESP32**:
