@@ -33,7 +33,7 @@ const chartHeight = 600;
 const backgroundColor = "white";
 
 async function fetchSensorData(date) {
-  const ref = admin.database().ref(`sensorData/${date}`).limitToLast(20);;
+  const ref = db.ref(`sensorData/${date}`).limitToLast(20);
   const snapshot = await ref.once("value");
   return snapshot.val() ? Object.values(snapshot.val()) : [];
 }

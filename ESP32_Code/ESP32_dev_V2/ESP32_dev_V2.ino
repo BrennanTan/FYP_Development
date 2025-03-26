@@ -15,12 +15,8 @@ WebServer server(80);
 const char* API_ENDPOINT_SENDDATA = "http://172.19.70.209:3000/sendData"; //Change out the IP
 const char* API_ENDPOINT_GETPARAMETERS = "http://172.19.70.209:3000/getParameters"; //Change out the IP
 
-// const char* WIFI_SSID = "Renegade The Great";
-// const char* WIFI_PASSWORD = "surinnic_7";
-// const char* WIFI_SSID = "TSC@Student";
-// const char* WIFI_PASSWORD = "lifelongeducation";
-const char* WIFI_SSID = "PSR@Student";
-const char* WIFI_PASSWORD = "educationandliving";
+const char* WIFI_SSID = "";
+const char* WIFI_PASSWORD = "";
 
 // Sensor commands
 //Moisture
@@ -181,7 +177,7 @@ void timeToHydrate() {
   int duration = durationParam.toInt();
 
   if (duration <= 0) {
-    duration = 3; // Default duration if invalid or not provided
+    duration = 10; // Default duration if invalid or not provided
   }
 
   // Turn on
