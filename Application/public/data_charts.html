@@ -258,6 +258,7 @@
 
         const searchByDateButton = document.getElementById('searchByDateButton');
         let selectedDate = new Date(dateInput.value);
+        let dateString = selectedDate.toISOString().split('T')[0];
 
         async function updateCharts(selectedDate) {
             const chartData = await fetchDataForChart(selectedDate);
