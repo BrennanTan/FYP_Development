@@ -12,11 +12,15 @@ WiFiClient client;
 WebServer server(80);
 
 // API endpoint and credentials
-const char* API_ENDPOINT_SENDDATA = "http://172.19.70.209:3000/sendData"; //Change out the IP
-const char* API_ENDPOINT_GETPARAMETERS = "http://172.19.70.209:3000/getParameters"; //Change out the IP
+const char* API_ENDPOINT_SENDDATA = "http://192.168.68.54:3000/sendData"; //Change out the IP
+const char* API_ENDPOINT_GETPARAMETERS = "http://192.168.68.54:3000/getParameters"; //Change out the IP
 
-const char* WIFI_SSID = "";
-const char* WIFI_PASSWORD = "";
+const char* WIFI_SSID = "Renegade The Great";
+const char* WIFI_PASSWORD = "surinnic_7";
+// const char* WIFI_SSID = "TSC@Student";
+// const char* WIFI_PASSWORD = "lifelongeducation";
+// const char* WIFI_SSID = "PSR@Student";
+// const char* WIFI_PASSWORD = "educationandliving";
 
 // Sensor commands
 //Moisture
@@ -224,5 +228,5 @@ void loop() {
   checkAndHydrate(moisture);
   // Post data to API
   postToAPI(moisture, temperature, conductivity, pH, nitrogen, phosphorus, potassium);
-  delay(3000);
+  delay(20000);
 }

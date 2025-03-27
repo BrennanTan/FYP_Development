@@ -13,6 +13,7 @@
     "axios": "^1.7.9",
     "chartjs-node-canvas": "^4.1.6",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "express": "^4.21.2",
     "firebase-admin": "^13.0.1",
     "jest": "^29.7.0",
