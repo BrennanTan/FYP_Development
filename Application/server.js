@@ -9,6 +9,7 @@ const axios = require('axios');
 const nodemailer = require("nodemailer");
 const JSZip = require("jszip");
 const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
+const { parseISO, addWeeks, format } = require('date-fns');
 
 const serviceAccount = require(path.join(__dirname, 'fyp-iot-db-firebase-adminsdk-ayz7x-41b7d0c290.json'));
 admin.initializeApp({
@@ -21,13 +22,85 @@ const db = admin.database();
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const ESP32_IP = 'http://172.19.70.170:80';
+const ESP32_IP = 'http://192.168.1.22:80'; // Change this
 
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+async function getWeekData(databaseRef) {
+  // Hardcoded date
+  const today = parseISO('2025-03-30');
+  const oneWeekFromToday = addWeeks(today, 1);
+
+  // Format dates to match Firebase data structure (YYYY-MM-DD)
+  const startDate = format(today, 'yyyy-MM-dd');
+  const endDate = format(oneWeekFromToday, 'yyyy-MM-dd');
+
+  try {
+    // Fetch all dates within the range
+    const dateSnapshot = await databaseRef
+      .orderByKey()
+      .startAt(startDate)
+      .endAt(endDate)
+      .once('value');
+
+    // Collect and process data
+    const weekData = [];
+
+    dateSnapshot.forEach((dateNode) => {
+      const date = dateNode.key;
+      
+      // For each date, get all sensor entries
+      dateNode.forEach((sensorEntry) => {
+        const sensorData = sensorEntry.val();
+        weekData.push({
+          date,
+          moisture: sensorData.moisture,
+          pH: sensorData.pH,
+        });
+      });
+    });
+
+    // Sort the data by date
+    weekData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    return weekData;
+  } catch (error) {
+    console.error('Error fetching week data:', error);
+    throw error;
+  }
+}
+
+app.get('/week-data', async (req, res) => {
+  try {
+    const weekData = await getWeekData(db.ref('sensorData'));
+
+    // Aggregate data per day
+    const dailyData = {};
+    weekData.forEach(({ date, moisture, pH }) => {
+      if (!dailyData[date]) {
+        dailyData[date] = { moisture: [], pH: [] };
+      }
+      dailyData[date].moisture.push(moisture);
+      dailyData[date].pH.push(pH);
+    });
+
+    // Compute average per day
+    const formattedData = Object.keys(dailyData).map((date) => ({
+      date,
+      moisture: dailyData[date].moisture.reduce((a, b) => a + b, 0) / dailyData[date].moisture.length,
+      pH: dailyData[date].pH.reduce((a, b) => a + b, 0) / dailyData[date].pH.length,
+    }));
+
+    res.json(formattedData);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch data' });
+  }
+});
+
+// 
 const chartWidth = 1000;
 const chartHeight = 600;
 const backgroundColor = "white";
@@ -462,4 +535,8 @@ wss.on('connection', (ws) => {
   });
 });
 
-server.listen(3000, () => console.log('API running on http://localhost:3000'));
+if (require.main === module) {
+  server.listen(3000, () => console.log('API running on http://localhost:3000'));
+}
+
+module.exports = app; // Export app for testing

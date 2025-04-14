@@ -12,8 +12,8 @@ WiFiClient client;
 WebServer server(80);
 
 // API endpoint and credentials
-const char* API_ENDPOINT_SENDDATA = "http://172.19.70.209:3000/sendData"; //Change out the IP
-const char* API_ENDPOINT_GETPARAMETERS = "http://172.19.70.209:3000/getParameters"; //Change out the IP
+const char* API_ENDPOINT_SENDDATA = "http://192.168.68.54:3000/sendData"; //Change out the IP
+const char* API_ENDPOINT_GETPARAMETERS = "http://192.168.1.22:3000/getParameters"; //Change out the IP
 
 const char* WIFI_SSID = "";
 const char* WIFI_PASSWORD = "";
@@ -224,5 +224,5 @@ void loop() {
   checkAndHydrate(moisture);
   // Post data to API
   postToAPI(moisture, temperature, conductivity, pH, nitrogen, phosphorus, potassium);
-  delay(3000);
+  delay(2000);
 }
