@@ -17,7 +17,7 @@
                         <div class="card-body">
                             <h5 class="card-title">Moisture chart</h5>                          
                             <canvas id="moistureChart"></canvas>
-                            <button class="hide-button btn btn-primary" onclick="downloadChart('moistureChart', 'Moisture Chart.png')">Download as image</button>
+                            <button class="hide-button btn btn-primary" onclick="downloadChart('moistureChart', 'Report Moisture Chart.png')">Download as image</button>
                         </div>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                         <div class="card-body">
                             <h5 class="card-title">pH chart</h5>                          
                             <canvas id="pHChart"></canvas>
-                            <button class="hide-button btn btn-primary" onclick="downloadChart('pHChart', 'pH Chart.png')">Download as image</button>
+                            <button class="hide-button btn btn-primary" onclick="downloadChart('pHChart', 'Report pH Chart.png')">Download as image</button>
                         </div>
                     </div>
                 </div>  
@@ -53,7 +53,7 @@
   const moistureValues = data.map(entry => entry.moisture);
   const pHValues = data.map(entry => entry.pH);
 
-  renderChart('moistureChart', labels, moistureValues, 'Moisture Level (%)', 'rgba(54, 162, 235, 0.5)', 0, 100, 10);
+  renderChart('moistureChart', labels, moistureValues, 'Average Moisture Level (%)', 'rgba(54, 162, 235, 0.5)', 0, 100, 10);
   renderChart('pHChart', labels, pHValues, 'pH Level', 'rgba(255, 99, 132, 0.5)', 0, 14, 2);
 }
 
@@ -85,6 +85,35 @@ function renderChart(canvasId, labels, data, label, color, minY, maxY, stepSize)
     }
   });
 }
+
+function downloadChart(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error("Canvas not found:", canvasId);
+                return;
+            }
+
+            // Add white background
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const ctx = tempCanvas.getContext("2d");
+
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+            // Draw the chart on top of the white background
+            ctx.drawImage(canvas, 0, 0);
+
+            const imageURL = tempCanvas.toDataURL("image/png");
+
+            const link = document.createElement("a");
+            link.href = imageURL;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
 fetchWeekData();
     </script>

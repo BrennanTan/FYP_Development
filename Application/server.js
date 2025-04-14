@@ -22,50 +22,16 @@ const db = admin.database();
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const ESP32_IP = 'http://192.168.68.57:80';
+const ESP32_IP = 'http://192.168.1.22:80'; // Change this
 
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// async function deleteInvalidMoistureEntries() {
-//   try {
-//     const dateKey = '2025-03-26'; // Specify the date to check
-
-//     const ref = db.ref(`sensorData/${dateKey}`);
-//     const dateSnapshot = await ref.once("value");
-
-//     if (!dateSnapshot.exists()) {
-//       console.log(`No data found for ${dateKey}`);
-//       return;
-//     }
-
-//     const deletePromises = []; // Stores delete promises
-
-//     dateSnapshot.forEach((sensorEntry) => {
-//       const key = sensorEntry.key;
-//       const sensorData = sensorEntry.val();
-
-//       if (sensorData.moisture > 100) {
-//         deletePromises.push(ref.child(key).remove()); // Directly remove the entry
-//       }
-//     });
-
-//     // Execute all deletions in parallel
-//     await Promise.all(deletePromises);
-    
-//     console.log(`Deleted ${deletePromises.length} invalid entries for ${dateKey}`);
-//   } catch (error) {
-//     console.error('Error deleting invalid moisture entries:', error);
-//   }
-// }
-
-// deleteInvalidMoistureEntries();
-
 async function getWeekData(databaseRef) {
   // Hardcoded date
-  const today = parseISO('2025-03-26');
+  const today = parseISO('2025-03-30');
   const oneWeekFromToday = addWeeks(today, 1);
 
   // Format dates to match Firebase data structure (YYYY-MM-DD)
@@ -97,7 +63,7 @@ async function getWeekData(databaseRef) {
       });
     });
 
-    // Optional: Sort the data by date
+    // Sort the data by date
     weekData.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return weekData;
@@ -569,4 +535,8 @@ wss.on('connection', (ws) => {
   });
 });
 
-server.listen(3000, () => console.log('API running on http://localhost:3000'));
+if (require.main === module) {
+  server.listen(3000, () => console.log('API running on http://localhost:3000'));
+}
+
+module.exports = app; // Export app for testing
