@@ -22,6 +22,8 @@ FYP_Development/
 │   │   ├── index.html
 │   │   ├── navbar.html
 │   │   └── set_parameters.html
+│   ├── test/
+│   │   └── api.test.js
 │   ├── package-lock.json
 │   ├── package.json
 │   └── server.js
@@ -41,6 +43,8 @@ FYP_Development/
     - **index.html**: Main entry point for the frontend.
     - **navbar.html**: Reusable navigation bar.
     - **set_parameters.html**: Page for setting parameters.
+  - **test/**
+    - **api.test.js**: Unit tests for the API
   - **server.js**: Node.js Express API.
 - **ESP32_Code/ESP32_dev_V2/**: ESP32's firmware code.
 
@@ -87,6 +91,15 @@ FYP_Development/
    ```
 
    The application should now be running at `http://localhost:3000`.
+
+
+### Start API Unit Tests   
+
+1. **Start the tests**:
+
+   ```bash
+   npm test
+   ```
 
 ### ESP32 Firmware Setup
 
